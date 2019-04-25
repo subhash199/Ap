@@ -1,7 +1,3 @@
 ﻿  Navigation.cpp
-\\adir.hull.ac.uk\home\561\561298\year 2 semester 2\advanced programming\acw_template\navigation.cpp(53): error C2374: 'sin': redefinition; multiple initialization
-  \\adir.hull.ac.uk\home\561\561298\year 2 semester 2\advanced programming\acw_template\navigation.cpp(49): note: see declaration of 'sin'
-\\adir.hull.ac.uk\home\561\561298\year 2 semester 2\advanced programming\acw_template\navigation.cpp(54): error C2088: '>>': illegal for class
-\\adir.hull.ac.uk\home\561\561298\year 2 semester 2\advanced programming\acw_template\navigation.cpp(57): error C2374: 'sin': redefinition; multiple initialization
-  \\adir.hull.ac.uk\home\561\561298\year 2 semester 2\advanced programming\acw_template\navigation.cpp(49): note: see declaration of 'sin'
-\\adir.hull.ac.uk\home\561\561298\year 2 semester 2\advanced programming\acw_template\navigation.cpp(58): error C2088: '>>': illegal for class
+g:\year 2 semester 2\advanced programming\acw_template\navigation.cpp(465): warning C4101: 'tempNum': unreferenced local variable
+  ACW_Template.vcxproj -> G:\Year 2 Semester 2\Advanced programming\ACW_Template\x64\Debug\ACW_Template.exe
