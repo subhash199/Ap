@@ -116,7 +116,7 @@ bool Navigation::MaxLinks()
 		ref1 = arcVec[i]->get_arc1();
 		ref2 = arcVec[i]->get_arc2();
 		for (int j = 0; j < nodeVec.size(); j++)
-		{	
+		{
 
 			double tempRef = nodeVec[j]->get_ref();
 
@@ -174,6 +174,7 @@ Navigation::~Navigation()
 
 bool Navigation::ProcessCommand(const string& commandString)
 {
+
 	istringstream inString(commandString);
 	string command;
 	inString >> command;
@@ -188,12 +189,12 @@ bool Navigation::ProcessCommand(const string& commandString)
 	else if (command == "FindDist")
 	{
 		int yo = 0, refs;
-		vector <int>location;		
+		vector <int>location;
 		while (inString >> refs)
 		{
 			location.push_back(refs);
-		}	
-		
+		}
+
 		string transport;
 
 		bool loop1 = false;
@@ -256,7 +257,7 @@ bool Navigation::ProcessCommand(const string& commandString)
 			}
 
 		}
-		_outFile << "FindDist " << location[0] << " " << location[1]<<"\r\n";
+		_outFile << "FindDist " << location[0] << " " << location[1] << "\r\n";
 		_outFile << locationName1 << "," << locationName2 << "," << distance << endl << "\r\n";
 		return true;
 	}
@@ -454,9 +455,9 @@ bool Navigation::ProcessCommand(const string& commandString)
 		_outFile << "\r\n";
 		return true;
 	}
+
 	else if (command == "FindRoute")
 	{
-		
 		vector<string> TransportMethod;
 		string transport; inString >> transport;
 		string readIn;
@@ -470,14 +471,15 @@ bool Navigation::ProcessCommand(const string& commandString)
 			startEndRefs.push_back(refs);
 		}
 		_outFile << "FindRoute " << transport << " " << startEndRefs[0] << " " << startEndRefs[1] << "\r\n";
+
 		vector<int>connectedNodes;
-		vector<int>lookNodes;
-		vector <int> checkNodes;
-		
-		//transportMethod = CheckTransport(transportMethod, transport);	
-		/*connectedNodes.push_back(startEndRefs[0]);*/
+		vector<int>findRoute;
+		vector<int>visitedNodes;
+
 		bool breakout = false;
-		bool hasNodes = false;
+		bool breakout1 = false;
+		bool foundEndRef = false;
+
 		if (transport == "Rail")
 		{
 			TransportMethod.push_back("Rail");
@@ -497,6 +499,7 @@ bool Navigation::ProcessCommand(const string& commandString)
 			TransportMethod.push_back("Bus");
 			TransportMethod.push_back("Rail");
 			TransportMethod.push_back("Car");
+			TransportMethod.push_back("Ship");
 		}
 		else if (transport == "Foot")
 		{
@@ -507,219 +510,192 @@ bool Navigation::ProcessCommand(const string& commandString)
 			TransportMethod.push_back("Car");
 			TransportMethod.push_back("Ship");
 
-		
-		}	
+
+		}
 		else if (transport == "Car")
 		{
 			TransportMethod.push_back("Car");
 			TransportMethod.push_back("Bus");
 			TransportMethod.push_back("Ship");
 		}
-	
-		for (Nodes*n:nodeVec)
+
+		int temp = startEndRefs[0];
+		connectedNodes.push_back(startEndRefs[0]);
+		while (foundEndRef == false)
 		{
-			if (n->get_ref() == startEndRefs[0])
+			for (int i = 0; i < nodeVec.size(); i++)
 			{
-				
-				for (Arc*a : n->get_linked())	// looks at the start nodes 				
-				{	
-					if (a->get_arc1() != startEndRefs[0]&& count(TransportMethod.begin(), TransportMethod.end(), a->get_arcName()))
-					{
-						hasNodes = true;
-						lookNodes.push_back(a->get_arc1()); // adds the nodes connected to start nodes
-					}					
-					else if (a->get_arc2() != startEndRefs[0] && count(TransportMethod.begin(), TransportMethod.end(), a->get_arcName()))
-					{
-						hasNodes = true;
-						lookNodes.push_back(a->get_arc2());// adds the nodes connected to start nodes
-					}
-				
-					
-				}
-				while (breakout == false && hasNodes == true)
+				if (nodeVec[i]->get_ref() == temp)
 				{
-					if (loop >= 1)
+
+					for (Arc*a : nodeVec[i]->get_linked())
 					{
-						breakout = true;
-						/*lookNodes.empty();
-						for (int i = 0; i < checkNodes.size(); i++)
+						if (a->get_arc1() == temp && count(TransportMethod.begin(), TransportMethod.end(), a->get_arcName()))
 						{
-							lookNodes.push_back(checkNodes[i]);
-						}*/
-					}
-					loop++;
-					for (int i = 0; i < lookNodes.size(); i++) // has all the connected nodes to start nodes
-					{
-						for (int j = 0; j < arcVec.size(); j++)
-						{							
-							if (lookNodes[i] == arcVec[j]->get_arc1() && !count(checkNodes.begin(),checkNodes.end(),arcVec[j]->get_arc2()) && count(TransportMethod.begin(), TransportMethod.end(), arcVec[j]->get_arcName()))
+							if (!count(connectedNodes.begin(), connectedNodes.end(), a->get_arc2()))
 							{
-								if (arcVec[j]->get_arc2() == startEndRefs[1])
+								if (a->get_arc2() == startEndRefs[1])
 								{
-									checkNodes.push_back(arcVec[j]->get_arc1()); // has connected nodes to second connected nodes
-									checkNodes.push_back(arcVec[j]->get_arc2());
-									breakout = true;
+									connectedNodes.push_back(a->get_arc2());
+									foundEndRef = true;
 									break;
-									
 								}
 								else
 								{
-									checkNodes.push_back(arcVec[j]->get_arc2());
+									connectedNodes.push_back(a->get_arc2());
 								}
+
 							}
 
-							else if (lookNodes[i] == arcVec[j]->get_arc2() && !count(checkNodes.begin(), checkNodes.end(), arcVec[j]->get_arc1()) && count(TransportMethod.begin(), TransportMethod.end(), arcVec[j]->get_arcName()))
+						}
+						else if (a->get_arc2() == temp && count(TransportMethod.begin(), TransportMethod.end(), a->get_arcName()))
+						{
+							if (!count(connectedNodes.begin(), connectedNodes.end(), a->get_arc1()))
 							{
-								if (arcVec[j]->get_arc1() == startEndRefs[1])
+								if (a->get_arc1() == startEndRefs[1])
 								{
-									checkNodes.push_back(arcVec[j]->get_arc2());
-									checkNodes.push_back(startEndRefs[1]);
-									breakout = true;
+									connectedNodes.push_back(a->get_arc1());
+									foundEndRef = true;
 									break;
-									
 								}
 								else
 								{
-									checkNodes.push_back(arcVec[j]->get_arc1());
+									connectedNodes.push_back(a->get_arc1());
 								}
-								
+							}
+						}
+					}
+					if (foundEndRef == true)
+					{
+						break;
+					}
+					else
+					{
+						visitedNodes.push_back(temp);
+						for (int x = 0; x < connectedNodes.size(); x++)
+						{
+							if (!count(visitedNodes.begin(), visitedNodes.end(), connectedNodes[x]))
+							{
+								temp = connectedNodes[x];
+								i = 0;
+								break;
 							}
 						}
 					}
 
 				}
-				if (breakout == true)
-				{
-					
-					reverse(checkNodes.begin(), checkNodes.end());
-					for (int i = 0; i < checkNodes.size(); i++)
-					{
-						for (int x = 0; x < arcVec.size(); x++)
-						{
-							if (checkNodes[i] == arcVec[x]->get_arc1()&& count(checkNodes.begin(), checkNodes.end(), arcVec[x]->get_arc2()) /*&& !count(connectedNodes.begin(), connectedNodes.end(), arcVec[x]->get_arc2())*/)
-							{
-								if (!count(connectedNodes.begin(), connectedNodes.end(), checkNodes[i]))
-								{
-									connectedNodes.push_back(checkNodes[i]);
-									connectedNodes.push_back(arcVec[x]->get_arc2());
-									int start = i+1;
-									int index = 0;
-									for (int q = 0; q < checkNodes.size(); q++)
-									{
-										if (checkNodes[q] == arcVec[x]->get_arc2())
-										{
-											index = q;
-										}
-									}
-									index = index;
-									if (connectedNodes.size() >= start + index)
-									{
-
-										if (start > 1 && index > 0)
-										{
-											checkNodes.erase(checkNodes.begin() + start, checkNodes.begin() + index);
-										}
-									}
-									
-								}
-								else
-								{
-									connectedNodes.push_back(arcVec[x]->get_arc2());
-									int start = i+1;
-									int index = 0;
-									for (int q = 0; q < checkNodes.size(); q++)
-									{
-										if (checkNodes[q] == arcVec[x]->get_arc2())
-										{
-											index = q;
-										}
-									}
-									index = index;
-									if (connectedNodes.size() >= start + index)
-									{
-										if (start > 1 && index > 0)
-										{
-											checkNodes.erase(checkNodes.begin() + start, checkNodes.begin() + index);
-										}
-									}
-									
-								}
-								
-								
-							}
-							else if (checkNodes[i] == arcVec[x]->get_arc2()&&count(checkNodes.begin(), checkNodes.end(), arcVec[x]->get_arc1() /*&& !count(connectedNodes.begin(), connectedNodes.end(), arcVec[x]->get_arc1())*/))
-							{
-								if (!count(connectedNodes.begin(), connectedNodes.end(), checkNodes[i]))
-								{
-									connectedNodes.push_back(checkNodes[i]);
-									connectedNodes.push_back(arcVec[x]->get_arc1());
-									int start = i+1;
-									int index = 0;
-									for (int q = 0; q < checkNodes.size(); q++)
-									{
-										if (checkNodes[q] == arcVec[x]->get_arc2())
-										{
-											index = q;
-										}
-									}
-									index = index;
-									if (connectedNodes.size() >= start + index)
-									{
-
-										if (start > 1 && index > 0)
-										{
-											checkNodes.erase(checkNodes.begin() + start, checkNodes.begin() + index);
-										}
-									}
-								}
-								else
-								{
-									connectedNodes.push_back(arcVec[x]->get_arc1());
-									int start = i+1;
-									int index = 0;
-									for (int q = 0; q < checkNodes.size(); q++)
-									{
-										if (checkNodes[q] == arcVec[x]->get_arc2())
-										{
-											index = q;
-										}
-									}
-									index = index;
-									if (connectedNodes.size() >= start + index)
-									{
-
-										if (start > 1 && index > 0)
-										{
-											checkNodes.erase(checkNodes.begin() + start, checkNodes.begin() + index);
-										}
-									}
-								}
-								
-							}
-						}
-					}
-				}
-				if (hasNodes == true && breakout == true)
-				{
-					reverse(connectedNodes.begin(), connectedNodes.end());
-					for (int i = 0; i < connectedNodes.size(); i++)
-					{
-						_outFile << connectedNodes[i] << "\r\n";
-					}
-					_outFile << "\r\n";
-				}
-				
-				else
-				{
-					_outFile << "FAIL" << "\r\n";
-				}
-				
-
 			}
-			
-			 
 		}
-		
+
+		temp = startEndRefs[0];
+		breakout = false;
+		int comparePrev = 0;
+		bool added = false;
+
+		while (breakout == false)
+		{
+
+			for (int x = 0; x < arcVec.size(); x++)
+			{
+				added = false;
+				if (temp == arcVec[x]->get_arc1() && count(connectedNodes.begin(), connectedNodes.end(), arcVec[x]->get_arc2()))
+				{
+					if (!count(findRoute.begin(), findRoute.end(), temp))
+					{
+						findRoute.push_back(temp);
+						findRoute.push_back(arcVec[x]->get_arc2());
+						temp = arcVec[x]->get_arc2();
+						added = true;
+						x = 0;
+						break;
+					}
+					else if (!count(findRoute.begin(), findRoute.end(), arcVec[x]->get_arc2()))
+					{
+						findRoute.push_back(arcVec[x]->get_arc2());
+						temp = arcVec[x]->get_arc2();
+						x = 0;
+						added = true;
+						break;
+
+					}
+
+				}
+				else if (temp == arcVec[x]->get_arc2() && count(connectedNodes.begin(), connectedNodes.end(), arcVec[x]->get_arc1()))
+				{
+					if (!count(findRoute.begin(), findRoute.end(), temp))
+					{
+						findRoute.push_back(temp);
+						findRoute.push_back(arcVec[x]->get_arc1());
+						temp = arcVec[x]->get_arc1();
+						added = true;
+						x = 0;
+						break;
+					}
+					else if (!count(findRoute.begin(), findRoute.end(), arcVec[x]->get_arc1()))
+					{
+						findRoute.push_back(arcVec[x]->get_arc1());
+						temp = arcVec[x]->get_arc1();
+						added = true;
+						x = 0;
+						break;
+
+					}
+
+				}
+			}
+
+			if (count(findRoute.begin(), findRoute.end(), startEndRefs[1]))
+			{
+				break;
+				breakout = true;
+			}
+			else if (added == false)
+			{
+				for (int i = 0; i < connectedNodes.size(); i++)
+				{
+					if (connectedNodes[i] == findRoute.back())
+					{
+						connectedNodes.erase(connectedNodes.begin() + i);
+						temp = startEndRefs[0];
+						findRoute.clear();
+						break;
+					}
+
+				}
+			}
+
+		}
+
+
+
+
+
+		for (int i = 0; i < findRoute.size(); i++)
+		{
+			if (findRoute[i] == startEndRefs[0])
+			{
+				breakout = true;
+			}
+			else if (findRoute[i] == startEndRefs[1])
+			{
+				breakout1 = true;
+			}
+		}
+
+		if (breakout == true && breakout1 == true)
+		{
+			for (int i = 0; i < findRoute.size(); i++)
+			{
+				_outFile << findRoute[i] << "\r\n";
+			}
+			_outFile << "\r\n";
+		}
+
+		else
+		{
+			_outFile << "FAIL" << "\r\n";
+		}
+
 	}
 	//Add your code here
 	return true;
