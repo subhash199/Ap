@@ -456,8 +456,9 @@ bool Navigation::ProcessCommand(const string& commandString)
 		return true;
 	}
 
-	else if (command == "FindRoute")
+	else if (command == "FindRoute"||command=="FindShortestRoute")
 	{
+		
 		vector<string> TransportMethod;
 		string transport; inString >> transport;
 		string readIn;
@@ -470,7 +471,15 @@ bool Navigation::ProcessCommand(const string& commandString)
 		{
 			startEndRefs.push_back(refs);
 		}
-		_outFile << "FindRoute " << transport << " " << startEndRefs[0] << " " << startEndRefs[1] << "\r\n";
+		if (command == "FindRoute")
+		{
+			_outFile << "FindRoute " << transport << " " << startEndRefs[0] << " " << startEndRefs[1] << "\r\n";
+		}
+		else if (command== "FindShortestRoute")
+		{
+			_outFile << "FindShortestRoute " << transport << " " << startEndRefs[0] << " " << startEndRefs[1] << "\r\n";
+		}
+		
 
 		vector<int>connectedNodes;
 		vector<int>findRoute;
@@ -665,7 +674,52 @@ bool Navigation::ProcessCommand(const string& commandString)
 			}
 
 		}
-
+		vector<int>reversed;		
+		reversed = findRoute;
+		
+		for (int i = 0; i < findRoute.size(); i++)
+		{
+			for (int z = 0; z < reversed.size(); z++)
+			{
+				for (int j = 0; j < arcVec.size(); j++)
+				{
+					if (findRoute[i] == arcVec[j]->get_arc1() && reversed[z] == arcVec[j]->get_arc2())
+					{				
+						if (i + 1 == z || z + 1 == i)
+						{
+							break;
+						}
+						else
+						{
+							findRoute.erase(findRoute.begin() + i + 1, findRoute.begin() + z);
+							reversed.erase(reversed.begin() + i + 1, reversed.begin() + z);
+							i = 0;
+							z = 0;
+							j = 0;
+							break;
+						}
+						break;
+					}
+					else if (findRoute[i] == arcVec[j]->get_arc2() && reversed[z] == arcVec[j]->get_arc1())
+					{
+						if (i + 1 == z || z + 1 == i)
+						{
+							break;
+						}
+						else
+						{
+							findRoute.erase(findRoute.begin() + i + 1, findRoute.begin() + z);
+							reversed.erase(reversed.begin() + i + 1, reversed.begin() + z);
+							i = 0;
+							z = 0;
+							j = 0;
+							break;
+						}
+						break;
+					}
+				}
+			}
+		}
 
 
 
@@ -697,7 +751,6 @@ bool Navigation::ProcessCommand(const string& commandString)
 		}
 
 	}
-	//Add your code here
 	return true;
 
 }

@@ -1,4 +1,3 @@
 ﻿  Navigation.cpp
-g:\year 2 semester 2\advanced programming\acw_template\navigation.cpp(680): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-g:\year 2 semester 2\advanced programming\acw_template\navigation.cpp(466): warning C4101: 'tempNum': unreferenced local variable
+g:\year 2 semester 2\advanced programming\acw_template\navigation.cpp(467): warning C4101: 'tempNum': unreferenced local variable
   ACW_Template.vcxproj -> G:\Year 2 Semester 2\Advanced programming\ACW_Template\x64\Debug\ACW_Template.exe
