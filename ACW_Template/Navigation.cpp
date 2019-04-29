@@ -452,13 +452,12 @@ bool Navigation::ProcessCommand(const string& commandString)
 			}
 
 		}
-		_outFile << "\r\n";
+		
 		return true;
 	}
-
 	else if (command == "FindRoute"||command=="FindShortestRoute")
 	{
-		
+
 		vector<string> TransportMethod;
 		string transport; inString >> transport;
 		string readIn;
@@ -471,15 +470,18 @@ bool Navigation::ProcessCommand(const string& commandString)
 		{
 			startEndRefs.push_back(refs);
 		}
-		if (command == "FindRoute")
-		{
-			_outFile << "FindRoute " << transport << " " << startEndRefs[0] << " " << startEndRefs[1] << "\r\n";
-		}
-		else if (command== "FindShortestRoute")
+		if (command == "FindShortestRoute")
 		{
 			_outFile << "FindShortestRoute " << transport << " " << startEndRefs[0] << " " << startEndRefs[1] << "\r\n";
 		}
+		else if (command == "FindRoute")
+		{
+			_outFile << "FindRoute " << transport << " " << startEndRefs[0] << " " << startEndRefs[1] << "\r\n";
+		}
 		
+
+
+
 
 		vector<int>connectedNodes;
 		vector<int>findRoute;
@@ -674,9 +676,9 @@ bool Navigation::ProcessCommand(const string& commandString)
 			}
 
 		}
-		vector<int>reversed;		
+		vector<int>reversed;
 		reversed = findRoute;
-		
+
 		for (int i = 0; i < findRoute.size(); i++)
 		{
 			for (int z = 0; z < reversed.size(); z++)
@@ -684,7 +686,7 @@ bool Navigation::ProcessCommand(const string& commandString)
 				for (int j = 0; j < arcVec.size(); j++)
 				{
 					if (findRoute[i] == arcVec[j]->get_arc1() && reversed[z] == arcVec[j]->get_arc2())
-					{				
+					{
 						if (i + 1 == z || z + 1 == i)
 						{
 							break;
@@ -749,11 +751,11 @@ bool Navigation::ProcessCommand(const string& commandString)
 		{
 			_outFile << "FAIL" << "\r\n";
 		}
-
+		return true;
 	}
-	return true;
-
+	
 }
+
 
 bool Navigation::BuildNetwork(const string &fileNamePlaces, const string &fileNameLinks)
 {

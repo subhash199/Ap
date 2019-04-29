@@ -1,3 +1,4 @@
 ﻿  Navigation.cpp
-g:\year 2 semester 2\advanced programming\acw_template\navigation.cpp(467): warning C4101: 'tempNum': unreferenced local variable
+g:\year 2 semester 2\advanced programming\acw_template\navigation.cpp(466): warning C4101: 'tempNum': unreferenced local variable
+g:\year 2 semester 2\advanced programming\acw_template\navigation.cpp(757): warning C4715: 'Navigation::ProcessCommand': not all control paths return a value
   ACW_Template.vcxproj -> G:\Year 2 Semester 2\Advanced programming\ACW_Template\x64\Debug\ACW_Template.exe
